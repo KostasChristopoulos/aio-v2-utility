@@ -1,31 +1,26 @@
-# AIO v2 - All-In-One CSV & Excel Power Tool
+# AIO v2 - All-In-One CSV & Excel Utility
 
-A professional-grade Python utility for ultra-fast data processing. Designed for scalability and ease of use.
+A Python-based utility tool for common CSV and Excel data processing tasks.
 
 ## 🚀 Downloads
 **[Download AIO Tool v2.5 for macOS](https://github.com/KostasChristopoulos/aio-v2-utility/releases/latest/download/AIO_CSV_Tool_macOS.zip)**  
-*(For Windows/Linux, please run via Python instructions below)*
+*(For Windows/Linux, run via Python instructions below)*
 
 ---
 
-## 🔥 Features
-- **📊 CSV Batch Splitter**: Ultra-fast splitting with built-in ASSET_ID duplicate detection.
-- **✂️ CSV Column Dropper**: Instantly remove specific columns with dynamic header detection.
-- **🔄 Array to String Converter**: Cleans array-style data into clean, pipe-delimited strings.
-- **🔗 Smart CSV Concatenator**: 
-    - Auto-detects common columns.
-    - Flags "Disconnected Files" with mismatched headers.
-    - **Unique NULL Dropper**: Automatically purges empty columns during join.
-- **📗 Excel to CSV**: Batch convert Excel workbooks or specific sheets in seconds.
-- **🖥️ Pro Activity Log**:
-    - Color-coded events (Success, Warning, Error, Alert).
-    - **Live Counters**: Track process health at a glance.
-    - **Exportable**: Save session logs to `.txt`.
-    - **Snippet Snapping**: Double-click any line to copy to clipboard.
-- **🎯 QoL Extras**: 
-    - Smart output naming.
-    - Reveal in Finder shortcuts.
-    - Full Drag & Drop integration.
+## Features
+- **CSV Batch Splitter**: Splits large CSV files into smaller batches with built-in validation and duplicate detection.
+- **CSV Column Dropper**: Removes specific columns from CSV files.
+- **Array to String Converter**: Converts array-style text data into pipe-delimited strings.
+- **CSV Concatenator**: Merges multiple CSV files from a folder with automatic column matching and empty column cleanup.
+- **Excel to CSV**: Converts Excel workbooks or specific sheets into CSV files.
+- **Activity Log**: Real-time logging with color-coded status, error/warning counters, and session export to .txt.
+
+## Quality of Life
+- **Drag & Drop**: Drop files or folders directly into the app.
+- **Smart Naming**: Automatically suggests output filenames based on the input.
+- **Finder Integration**: Option to open the results folder directly after processing.
+- **Copy logs**: Double-click any log line to copy it to your clipboard.
 
 ## 🛠️ Installation & Usage
 
@@ -39,5 +34,5 @@ A professional-grade Python utility for ultra-fast data processing. Designed for
    python main.py
    ```
 
-## 📜 Version History
-See [CHANGELOG.md](CHANGELOG.md) for full milestone details.
+---
+See [CHANGELOG.md](CHANGELOG.md) for version history.
