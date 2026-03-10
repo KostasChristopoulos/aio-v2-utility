@@ -2,6 +2,11 @@
 
 A multi-purpose Python application with a GUI to perform various CSV operations.
 
+## 🚀 Downloads
+**[Download AIO CSV Tool for macOS](https://github.com/KostasChristopoulos/aio-v2-utility/releases/latest/download/AIO_CSV_Tool_macOS.zip)**
+
+---
+
 ## Features
 - **CSV Batch Splitter**: Split large CSV files into smaller batches.
 - **CSV Column Dropper**: Remove specific columns from a CSV file.
