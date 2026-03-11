@@ -3,7 +3,7 @@
 A Python-based utility tool for common CSV and Excel data processing tasks.
 
 ## 🚀 Downloads
-**[Download AIO Tool v2.5 for macOS](https://github.com/KostasChristopoulos/aio-v2-utility/releases/latest/download/AIO_CSV_Tool_macOS.zip)**  
+**[Download AIO Tool v2.6 for macOS](https://github.com/KostasChristopoulos/aio-v2-utility/releases/latest/download/AIO_CSV_Tool_macOS.zip)**  
 *(For Windows/Linux, run via Python instructions below)*
 
 ---
