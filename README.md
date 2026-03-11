@@ -14,6 +14,7 @@ A Python-based utility tool for common CSV and Excel data processing tasks.
 - **Array to String Converter**: Converts array-style text data into pipe-delimited strings.
 - **CSV Concatenator**: Merges multiple CSV files from a folder with automatic column matching and empty column cleanup.
 - **Excel to CSV**: Converts Excel workbooks or specific sheets into CSV files.
+- **Date Harmonizer**: Automatically detects and converts diverse date formats into a unified target format (e.g., YYYY-MM-DD for DBs), with support for US/EU ambiguity resolution.
 - **Activity Log**: Real-time logging with color-coded status, error/warning counters, and session export to .txt.
 
 ## Quality of Life

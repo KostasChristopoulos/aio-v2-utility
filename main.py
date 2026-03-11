@@ -14,11 +14,12 @@ from tools.csv_dropper import process_drop
 from tools.csv_array_converter import process_convert
 from tools.csv_concat import process_concat, get_common_columns
 from tools.xlsx_to_csv import process_xlsx_convert, get_sheet_names
+from tools.date_harmonizer import process_date_harmonization
 
 # ==========================================
 # 1. CORE APP SETUP & NAVIGATION
 # ==========================================
-VERSION = "v2.5"
+VERSION = "v2.6.0"
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.json")
 ENABLE_ACTIVITY_LOG = True 
 
@@ -391,7 +392,96 @@ def run_xlsx_converter_logic():
     thread.daemon = True; thread.start()
 
 # ==========================================
-# 7. LAYOUT & PAGES
+# 7. LOGIC: DATE HARMONIZER
+# ==========================================
+def browse_file_dates():
+    filename = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
+    if filename:
+        entry_filepath_dates.delete(0, "end"); entry_filepath_dates.insert(0, filename)
+        update_stats_label(filename, lbl_stats_dates)
+        load_date_columns(filename)
+
+def load_date_columns(filepath):
+    try:
+        # Scan first 50 rows to find likely date columns
+        df = pd.read_csv(filepath, nrows=50)
+        date_cols = []
+        for col in df.columns:
+            # Simple heuristic: look for numbers, separators, or common date keywords
+            sample = df[col].dropna().astype(str).tolist()
+            if any(any(char in s for char in '/-') and any(char.isdigit() for char in s) for s in sample):
+                date_cols.append(col)
+        
+        if date_cols:
+            log_message(f"Detected {len(date_cols)} potential date columns.", "info")
+            combo_date_cols.configure(values=date_cols)
+            combo_date_cols.set(date_cols[0])
+        else:
+            log_message("No obvious date columns detected, showing all columns.", "warning")
+            combo_date_cols.configure(values=df.columns.tolist())
+            combo_date_cols.set(df.columns[0])
+    except Exception as e:
+        log_message(f"Date scan failed: {e}", "error")
+
+def add_date_col_to_list(col_name):
+    current = entry_target_date_cols.get().strip()
+    if current:
+        if col_name not in current.split(';'):
+            entry_target_date_cols.insert("end", f";{col_name}")
+    else:
+        entry_target_date_cols.insert(0, col_name)
+
+def run_date_harmonizer():
+    input_file = entry_filepath_dates.get()
+    cols_raw = entry_target_date_cols.get()
+    pref = combo_date_pref.get() # 'US (MM/DD)' or 'EU (DD/MM)'
+    target_fmt = combo_date_format.get()
+    
+    # Map friendly names to strftime
+    fmt_map = {
+        "YYYY-MM-DD (DB)": "%Y-%m-%d",
+        "DD-MM-YYYY": "%d-%m-%Y",
+        "MM-DD-YYYY": "%m-%d-%Y",
+        "DD/MM/YYYY": "%d/%m/%Y",
+        "MM/DD/YYYY": "%m/%d/%Y",
+        "DD-MMM-YYYY (e.g. 15-Mar-2024)": "%d-%b-%Y"
+    }
+    fmt = fmt_map.get(target_fmt, "%Y-%m-%d")
+    pref_clean = 'EU' if 'EU' in pref else 'US'
+    
+    if not input_file or not cols_raw:
+        messagebox.showerror("Error", "Please provide a file and target columns."); return
+    
+    target_cols = [c.strip() for c in cols_raw.split(';') if c.strip()]
+    btn_run_dates.configure(state="disabled", text="Processing...")
+    progress_dates.pack(pady=10); progress_dates.set(0)
+    
+    def on_progress(curr, total):
+        pct = curr / total if total > 0 else 0
+        root.after(0, lambda: progress_dates.set(pct))
+        
+    def on_complete(success, msg, out_file):
+        def ui_update():
+            progress_dates.pack_forget()
+            btn_run_dates.configure(state="normal", text="Harmonize Dates")
+            log_message(msg, "success" if success else "warning")
+            if success: show_open_folder_btn(os.path.dirname(input_file), page_dates)
+            messagebox.showinfo("Status", msg)
+        root.after(0, ui_update)
+        
+    def on_error(err):
+        def ui_error():
+            progress_dates.pack_forget()
+            btn_run_dates.configure(state="normal", text="Harmonize Dates")
+            log_message(f"Error: {err}", "error"); messagebox.showerror("Error", err)
+        root.after(0, ui_error)
+        
+    log_message(f"Harmonizing dates in {os.path.basename(input_file)}...", "info")
+    thread = threading.Thread(target=process_date_harmonization, args=(input_file, target_cols, pref_clean, fmt, on_progress, on_complete, on_error))
+    thread.daemon = True; thread.start()
+
+# ==========================================
+# 8. LAYOUT & PAGES
 # ==========================================
 root.grid_rowconfigure(0, weight=1); root.grid_columnconfigure(1, weight=1)
 sidebar = ctk.CTkFrame(root, width=170, corner_radius=0); sidebar.grid(row=0, column=0, sticky="nsew")
@@ -489,19 +579,41 @@ lbl_stats_convert = ctk.CTkLabel(page_converter, text="", font=("Inter", 11), te
 btn_run_convert = ctk.CTkButton(page_converter, text="Convert Arrays to Strings", command=run_converter, font=("Inter", 14, "bold"), height=40); btn_run_convert.pack(pady=10)
 progress_convert = ctk.CTkProgressBar(page_converter, width=300, mode="indeterminate")
 
+# --- UI: Date Harmonizer ---
+page_dates = ctk.CTkFrame(content, fg_color="transparent"); page_dates.grid(row=0, column=0, sticky="nsew")
+ctk.CTkLabel(page_dates, text="Date Harmonizer", font=("Inter", 24, "bold")).pack(pady=20)
+f8 = ctk.CTkFrame(page_dates, fg_color="transparent"); f8.pack(fill="x", padx=40)
+entry_filepath_dates = ctk.CTkEntry(f8); entry_filepath_dates.pack(side="left", expand=True, fill="x", padx=5)
+ctk.CTkButton(f8, text="Browse", command=browse_file_dates, width=80).pack(side="left")
+lbl_stats_dates = ctk.CTkLabel(page_dates, text="", font=("Inter", 11), text_color="gray50"); lbl_stats_dates.pack()
+
+f_date_cols = ctk.CTkFrame(page_dates, fg_color="transparent"); f_date_cols.pack(fill="x", padx=40, pady=5)
+entry_target_date_cols = ctk.CTkEntry(f_date_cols, placeholder_text="Columns to fix (split by ;)"); entry_target_date_cols.pack(side="left", expand=True, fill="x", padx=(0, 5))
+combo_date_cols = ctk.CTkOptionMenu(f_date_cols, values=["Scan a file first..."], command=add_date_col_to_list, width=150); combo_date_cols.pack(side="left")
+
+f_date_opts = ctk.CTkFrame(page_dates, fg_color="transparent"); f_date_opts.pack(fill="x", padx=40, pady=5)
+ctk.CTkLabel(f_date_opts, text="Input Preference:").pack(side="left", padx=5)
+combo_date_pref = ctk.CTkOptionMenu(f_date_opts, values=["US (MM/DD)", "EU (DD/MM)"], width=130); combo_date_pref.pack(side="left", padx=5)
+ctk.CTkLabel(f_date_opts, text="Target Format:").pack(side="left", padx=5)
+combo_date_format = ctk.CTkOptionMenu(f_date_opts, values=["YYYY-MM-DD (DB)", "DD-MM-YYYY", "MM-DD-YYYY", "DD/MM/YYYY", "MM/DD/YYYY", "DD-MMM-YYYY (e.g. 15-Mar-2024)"], width=200); combo_date_format.pack(side="left", padx=5)
+
+btn_run_dates = ctk.CTkButton(page_dates, text="Harmonize Dates", command=run_date_harmonizer, font=("Inter", 14, "bold"), height=40); btn_run_dates.pack(pady=10)
+progress_dates = ctk.CTkProgressBar(page_dates, width=300); progress_dates.set(0)
+
 # ==========================================
 # SIDEBAR & NAV
 # ==========================================
 ctk.CTkLabel(sidebar, text="AIO Tools", font=("Inter", 20, "bold")).pack(pady=(20, 10))
 def nav(page, btn):
     page.tkraise()
-    for b in [bn1, bn2, bn3, bn4, bn5]: b.configure(fg_color="transparent")
+    for b in [bn1, bn2, bn3, bn4, bn5, bn6]: b.configure(fg_color="transparent")
     btn.configure(fg_color=("gray75", "gray25"))
 bn1 = ctk.CTkButton(sidebar, text="CSV Splitter", command=lambda: nav(page_splitter, bn1), anchor="w", fg_color="transparent"); bn1.pack(fill="x", padx=10, pady=2)
 bn2 = ctk.CTkButton(sidebar, text="Column Dropper", command=lambda: nav(page_dropper, bn2), anchor="w", fg_color="transparent"); bn2.pack(fill="x", padx=10, pady=2)
 bn3 = ctk.CTkButton(sidebar, text="Array Converter", command=lambda: nav(page_converter, bn3), anchor="w", fg_color="transparent"); bn3.pack(fill="x", padx=10, pady=2)
 bn4 = ctk.CTkButton(sidebar, text="CSV Concat", command=lambda: nav(page_concat, bn4), anchor="w", fg_color="transparent"); bn4.pack(fill="x", padx=10, pady=2)
 bn5 = ctk.CTkButton(sidebar, text="Excel to CSV", command=lambda: nav(page_xlsx, bn5), anchor="w", fg_color="transparent"); bn5.pack(fill="x", padx=10, pady=2)
+bn6 = ctk.CTkButton(sidebar, text="Date Harmonizer", command=lambda: nav(page_dates, bn6), anchor="w", fg_color="transparent"); bn6.pack(fill="x", padx=10, pady=2)
 ctk.CTkLabel(sidebar, text=f"AIO {VERSION}", font=("Inter", 11), text_color="gray50").pack(side="bottom", pady=10)
 
 # ==========================================
@@ -516,8 +628,9 @@ def handle_drop_ext(event, entry):
     if entry == entry_filepath_convert: update_stats_label(path, lbl_stats_convert)
     if entry == entry_folderpath_concat: suggest_output_name(path, entry_concat_output); load_folder_columns(path)
     if entry == entry_filepath_xlsx: load_excel_sheets(path); update_stats_label(path, lbl_stats_xlsx); suggest_output_name(path, entry_output_xlsx)
+    if entry == entry_filepath_dates: load_date_columns(path); update_stats_label(path, lbl_stats_dates)
 
-for e in [entry_filepath_split, entry_filepath_drop, entry_filepath_convert, entry_folderpath_concat, entry_filepath_xlsx]:
+for e in [entry_filepath_split, entry_filepath_drop, entry_filepath_convert, entry_folderpath_concat, entry_filepath_xlsx, entry_filepath_dates]:
     e.drop_target_register(DND_FILES); e.dnd_bind('<<Drop>>', lambda ev, entry=e: handle_drop_ext(ev, entry))
 
 if __name__ == "__main__":

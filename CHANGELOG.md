@@ -1,5 +1,11 @@
 # AIO Application Changelog
 
+### v2.6 (Data Harmonization)
+*   **New Tool**: Introduced the **Date Harmonizer** for cross-batch date consistency.
+*   **Intelligence**: Automatic parsing of US/EU date ambiguities and support for fuzzy date matching.
+*   **Targeting**: Support for various output formats (e.g., YYYY-MM-DD for Database sync).
+*   **Stability**: Added error-tracking for unparseable dates within the Activity Log.
+
 ### v2.5 (Log Intelligence & Quality of Life)
 *   **Live Monitoring**: Added **Error & Warning counters** in the log header for instant health checks.
 *   **Log Persistence**: Added a **"Save"** button to export the entire session log to a `.txt` file.
