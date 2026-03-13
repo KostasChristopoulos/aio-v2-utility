@@ -1,0 +1,49 @@
+name: Build and Release AIO Tool
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger on tags starting with v (e.g. v2.8.0)
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install customtkinter pandas Pillow tkinterdnd2 openpyxl pyinstaller
+        
+    - name: Build macOS Apps
+      run: |
+        # Build AIO CSV Tool
+        pyinstaller --noconfirm --windowed --name "AIO_CSV_Tool" --icon "assets/icon.icns" --add-data "assets:assets" --add-data "$(python -c 'import customtkinter; print(customtkinter.__path__[0])'):customtkinter" --hidden-import "PIL.ImageTk" --hidden-import "PIL.Image" --collect-all "tkinterdnd2" main.py
+        
+        # Build Splitter Pro
+        pyinstaller --noconfirm --windowed --name "Splitter Pro" --icon "assets/icon.icns" --add-data "assets:assets" --add-data "$(python -c 'import customtkinter; print(customtkinter.__path__[0])'):customtkinter" --hidden-import "PIL.ImageTk" --hidden-import "PIL.Image" --collect-all "tkinterdnd2" icsv_splitter.py
+        
+    - name: Zip Apps
+      run: |
+        cd dist
+        # Assuming the tag is in the GITHUB_REF (e.g., refs/tags/v2.8.0)
+        TAG_NAME=${GITHUB_REF#refs/tags/}
+        zip -qr AIO_CSV_Tool_${TAG_NAME}_macOS.zip "AIO_CSV_Tool.app"
+        zip -qr Splitter_Pro_macOS.zip "Splitter Pro.app"
+        
+    - name: Release Note
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          dist/AIO_CSV_Tool_*_macOS.zip
+          dist/Splitter_Pro_macOS.zip
