@@ -2,12 +2,12 @@
 
 A Python-based utility tool for common CSV and Excel data processing tasks.
 
-## ✨ New Release: v2.7.0
-**The "Self-Documentation" Update!** We've added interactive tooltips across all tools and smarter duplicate handling.
+## ✨ New Release: v2.8.0
+**The "Auto-Update" Release!** We've added an intelligent updater that checks for new versions on startup, and fully automated GitHub Actions releases!
 
 ## 🚀 Downloads
-- **[Download AIO Tool v2.7.0 (Latest)](https://github.com/KostasChristopoulos/aio-v2-utility/releases/latest/download/AIO_CSV_Tool_v2.7.0_macOS.zip)**  
-- **[Download Splitter Pro Standalone (v1.4.0)](https://github.com/KostasChristopoulos/aio-v2-utility/releases/latest/download/Splitter_Pro_v1.4_macOS.zip)**
+- **[Download AIO Tool v2.8.0 (Latest)](https://github.com/KostasChristopoulos/aio-v2-utility/releases/latest/download/AIO_CSV_Tool_v2.8.0_macOS.zip)**  
+- **[Download Splitter Pro Standalone (v1.4.0)](https://github.com/KostasChristopoulos/aio-v2-utility/releases/latest/download/Splitter_Pro_macOS.zip)**
 *(For Windows/Linux, run via Python instructions below)*
 
 ---
