@@ -9,6 +9,7 @@ from tkinterdnd2 import TkinterDnD, DND_FILES
 import pandas as pd
 import subprocess
 import platform
+import urllib.request
 from tkinter import Menu
 
 from tools.csv_splitter import process_split
@@ -64,7 +65,7 @@ def add_info_icon(parent, text):
 # ==========================================
 # 1. CORE APP SETUP & NAVIGATION
 # ==========================================
-VERSION = "v2.7.0"
+VERSION = "v2.8.0"
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.json")
 ENABLE_ACTIVITY_LOG = True 
 
@@ -97,6 +98,87 @@ ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
 
 root = Tk()
+
+def check_for_updates():
+    try:
+        url = "https://api.github.com/repos/KostasChristopoulos/aio-v2-utility/releases/latest"
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=5) as response:
+            data = json.loads(response.read().decode())
+            latest_version = data.get("tag_name", "")
+            if latest_version and latest_version != VERSION:
+                def prompt_update():
+                    dialog = ctk.CTkToplevel(root)
+                    dialog.title("Update Available")
+                    dialog.geometry("350x180")
+                    dialog.attributes("-topmost", True)
+                    
+                    if platform.system() == "Darwin":
+                        dialog.attributes("-alpha", 0.95)
+                    
+                    ctk.CTkLabel(dialog, text=f"A new version ({latest_version}) is available!\n\nYou are currently using {VERSION}.\nWould you like to download it?", font=("Inter", 12)).pack(pady=(20, 15))
+                    
+                    btn_frame = ctk.CTkFrame(dialog, fg_color="transparent")
+                    btn_frame.pack(pady=10)
+                    
+                    def download_update():
+                        dialog.destroy()
+                        asset_url = None
+                        for asset in data.get("assets", []):
+                            if "AIO_CSV_Tool" in asset.get("name", "") and asset.get("name", "").endswith(".zip"):
+                                asset_url = asset.get("browser_download_url")
+                                break
+                        
+                        if not asset_url:
+                            import webbrowser
+                            webbrowser.open(data.get("html_url"))
+                            return
+                            
+                        download_dialog = ctk.CTkToplevel(root)
+                        download_dialog.title("Downloading Update")
+                        download_dialog.geometry("300x120")
+                        download_dialog.attributes("-topmost", True)
+                        ctk.CTkLabel(download_dialog, text="Downloading to Downloads folder...").pack(pady=20)
+                        progress = ctk.CTkProgressBar(download_dialog)
+                        progress.pack(pady=10, padx=20)
+                        progress.start()
+                        
+                        def download_thread():
+                            if not asset_url:
+                                def fail():
+                                    progress.stop()
+                                    download_dialog.destroy()
+                                    messagebox.showerror("Error", "No download URL found.")
+                                root.after(0, fail)
+                                return
+                            try:
+                                downloads_path = os.path.join(os.path.expanduser('~'), 'Downloads', f"AIO_CSV_Tool_{latest_version}.zip")
+                                opener = urllib.request.build_opener()
+                                opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+                                urllib.request.install_opener(opener)
+                                urllib.request.urlretrieve(asset_url, downloads_path)
+                                def finish():
+                                    progress.stop()
+                                    download_dialog.destroy()
+                                    messagebox.showinfo("Update Downloaded", f"Update downloaded to:\n{downloads_path}\n\nPlease extract and use the new version.")
+                                root.after(0, finish)
+                            except Exception as e:
+                                def fail():
+                                    progress.stop()
+                                    download_dialog.destroy()
+                                    messagebox.showerror("Error", f"Failed to download update:\n{e}")
+                                root.after(0, fail)
+                                
+                        threading.Thread(target=download_thread, daemon=True).start()
+                    
+                    ctk.CTkButton(btn_frame, text="Yes, Download", command=download_update, width=120, font=("Inter", 12, "bold")).pack(side="left", padx=5)
+                    ctk.CTkButton(btn_frame, text="Skip", command=dialog.destroy, width=80, fg_color="transparent", border_width=1, text_color=("gray10", "gray90")).pack(side="left", padx=5)
+                    
+                root.after(3000, prompt_update)  # Prompt 3s after UI loads
+    except Exception as e:
+        print(f"Update check failed: {e}")
+
+threading.Thread(target=check_for_updates, daemon=True).start()
 root.title("AIO v2")
 root.geometry("750x550")
 
