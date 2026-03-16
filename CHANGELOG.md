@@ -1,5 +1,8 @@
 # AIO Application Changelog
 
+### v2.8.4 (The Connectivity Fix)
+*   **Update Fix**: Resolved SSL certificate verification issues on macOS that were preventing the auto-updater from checking GitHub.
+
 ### v2.8.3 (The Seamless Update Release)
 *   **Update Intelligence**: Fixed auto-update logic to correctly detect OS-specific builds (Mac vs Windows).
 *   **Workflow**: Added automatic "Reveal in Finder/Explorer" after the update download completes.

@@ -10,6 +10,7 @@ import pandas as pd
 import subprocess
 import platform
 import urllib.request
+import ssl
 from tkinter import Menu
 
 from tools.csv_splitter import process_split
@@ -65,7 +66,7 @@ def add_info_icon(parent, text):
 # ==========================================
 # 1. CORE APP SETUP & NAVIGATION
 # ==========================================
-VERSION = "v2.8.3"
+VERSION = "v2.8.4"
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.json")
 ENABLE_ACTIVITY_LOG = True 
 
@@ -101,9 +102,10 @@ root = Tk()
 
 def check_for_updates():
     try:
+        context = ssl._create_unverified_context()
         url = "https://api.github.com/repos/KostasChristopoulos/aio-v2-utility/releases/latest"
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=5) as response:
+        with urllib.request.urlopen(req, context=context, timeout=5) as response:
             data = json.loads(response.read().decode())
             latest_version = data.get("tag_name", "")
             if latest_version and latest_version != VERSION:
@@ -161,7 +163,7 @@ def check_for_updates():
                                 return
                             try:
                                 downloads_path = os.path.join(os.path.expanduser('~'), 'Downloads', f"AIO_CSV_Tool_{latest_version}.zip")
-                                opener = urllib.request.build_opener()
+                                opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=context))
                                 opener.addheaders = [('User-agent', 'Mozilla/5.0')]
                                 urllib.request.install_opener(opener)
                                 urllib.request.urlretrieve(asset_url, downloads_path)
