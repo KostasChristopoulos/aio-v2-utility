@@ -1,6 +1,9 @@
 # AIO Application Changelog
 
-### v2.8.1 (The Cross-Platform Release)
+### v2.8.3 (The Seamless Update Release)
+*   **Update Intelligence**: Fixed auto-update logic to correctly detect OS-specific builds (Mac vs Windows).
+*   **Workflow**: Added automatic "Reveal in Finder/Explorer" after the update download completes.
+*   **Quality**: Refined GitHub Actions for independent OS releases.
 *   **Windows Compatibility**: Added full support for Windows OS.
 *   **OS-Native logic**: Automatically switches between Finder (macOS) and Explorer (Windows).
 *   **Keyboard Shortcuts**: Added support for standard modifier keys (Ctrl+C/V/X/A on Windows/Linux, Command keys on macOS).

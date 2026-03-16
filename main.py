@@ -65,7 +65,7 @@ def add_info_icon(parent, text):
 # ==========================================
 # 1. CORE APP SETUP & NAVIGATION
 # ==========================================
-VERSION = "v2.8.2"
+VERSION = "v2.8.3"
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.json")
 ENABLE_ACTIVITY_LOG = True 
 
@@ -123,13 +123,21 @@ def check_for_updates():
                     
                     def download_update():
                         dialog.destroy()
+                        # Detect OS to pick the right asset
+                        current_os = platform.system()
                         asset_url = None
                         for asset in data.get("assets", []):
-                            if "AIO_CSV_Tool" in asset.get("name", "") and asset.get("name", "").endswith(".zip"):
-                                asset_url = asset.get("browser_download_url")
-                                break
+                            asset_name = asset.get("name", "")
+                            if "AIO_CSV_Tool" in asset_name and asset_name.endswith(".zip"):
+                                if current_os == "Windows" and "Windows" in asset_name:
+                                    asset_url = asset.get("browser_download_url")
+                                    break
+                                elif current_os == "Darwin" and "macOS" in asset_name:
+                                    asset_url = asset.get("browser_download_url")
+                                    break
                         
                         if not asset_url:
+                            # Fallback to the release page if no specific asset matches
                             import webbrowser
                             webbrowser.open(data.get("html_url"))
                             return
@@ -161,6 +169,7 @@ def check_for_updates():
                                     progress.stop()
                                     download_dialog.destroy()
                                     messagebox.showinfo("Update Downloaded", f"Update downloaded to:\n{downloads_path}\n\nPlease extract and use the new version.")
+                                    open_folder(downloads_path) # Automatically reveal the file
                                 root.after(0, finish)
                             except Exception as e:
                                 def fail():
@@ -176,7 +185,7 @@ def check_for_updates():
                     
                 root.after(3000, prompt_update)  # Prompt 3s after UI loads
     except Exception as e:
-        print(f"Update check failed: {e}")
+        log_message(f"Update check failed: {e}", "warning")
 
 threading.Thread(target=check_for_updates, daemon=True).start()
 root.title("AIO v2")

@@ -2,7 +2,8 @@
 
 A Python-based utility tool for common CSV and Excel data processing tasks.
 
-## ✨ New Release: v2.8.1
+## ✨ New Release: v2.8.3
+**The "Seamless Update" Release!** Featuring improved cross-platform logic and automatic file reveal after updates.
 **The "Cross-Platform" Release!** Now fully compatible with both macOS and Windows with automated builds.
 
 ## 🚀 Downloads
