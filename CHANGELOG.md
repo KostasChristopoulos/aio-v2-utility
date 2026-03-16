@@ -1,5 +1,15 @@
 # AIO Application Changelog
 
+### v2.8.1 (The Cross-Platform Release)
+*   **Windows Compatibility**: Added full support for Windows OS.
+*   **OS-Native logic**: Automatically switches between Finder (macOS) and Explorer (Windows).
+*   **Keyboard Shortcuts**: Added support for standard modifier keys (Ctrl+C/V/X/A on Windows/Linux, Command keys on macOS).
+*   **Automated Deployment**: Updated GitHub Actions to automatically build both macOS `.app` and Windows `.exe` versions on every release tag.
+
+### v2.8.0 (Auto-Update Release)
+*   **Intelligence**: Added an automatic update checker that notifies users of new releases on startup.
+*   **Direct Download**: Users can now download updates directly through the app interface.
+
 ### v2.6 (Data Harmonization)
 *   **New Tool**: Introduced the **Date Harmonizer** for cross-batch date consistency.
 *   **Intelligence**: Automatic parsing of US/EU date ambiguities and support for fuzzy date matching.

@@ -65,7 +65,7 @@ def add_info_icon(parent, text):
 # ==========================================
 # 1. CORE APP SETUP & NAVIGATION
 # ==========================================
-VERSION = "v2.8.0"
+VERSION = "v2.8.1"
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.json")
 ENABLE_ACTIVITY_LOG = True 
 
@@ -287,27 +287,36 @@ def suggest_output_name(input_path, entry_widget):
     entry_widget.insert(0, base)
 
 def open_folder(path):
-    if os.path.isdir(path):
-        subprocess.run(['open', path])
+    target = path if os.path.isdir(path) else os.path.dirname(path)
+    if platform.system() == "Windows":
+        os.startfile(target)
+    elif platform.system() == "Darwin":
+        subprocess.run(['open', target])
     else:
-        subprocess.run(['open', os.path.dirname(path)])
+        subprocess.run(['xdg-open', target])
 
 def show_open_folder_btn(folder_path, page):
     if hasattr(page, 'btn_open_folder'):
         page.btn_open_folder.destroy()
-    page.btn_open_folder = ctk.CTkButton(page, text="📁 Reveal results in Finder", 
+    btn_text = "📁 Reveal in Explorer" if platform.system() == "Windows" else "📁 Reveal in Finder"
+    page.btn_open_folder = ctk.CTkButton(page, text=btn_text, 
                                        command=lambda: open_folder(folder_path),
                                        fg_color="transparent", border_width=1,
                                        text_color=("gray10", "gray90"))
     page.btn_open_folder.pack(pady=5)
 
 def add_standard_shortcuts(root):
-    """Adds standard Mac Command-key shortcuts (Paste, Copy, etc.) globally."""
+    """Adds standard Command/Control-key shortcuts (Paste, Copy, etc.) globally."""
     if platform.system() == "Darwin":
         root.bind_all("<Command-v>", lambda e: e.widget.event_generate("<<Paste>>"))
         root.bind_all("<Command-c>", lambda e: e.widget.event_generate("<<Copy>>"))
         root.bind_all("<Command-x>", lambda e: e.widget.event_generate("<<Cut>>"))
         root.bind_all("<Command-a>", lambda e: e.widget.event_generate("<<SelectAll>>"))
+    else:
+        root.bind_all("<Control-v>", lambda e: e.widget.event_generate("<<Paste>>"))
+        root.bind_all("<Control-c>", lambda e: e.widget.event_generate("<<Copy>>"))
+        root.bind_all("<Control-x>", lambda e: e.widget.event_generate("<<Cut>>"))
+        root.bind_all("<Control-a>", lambda e: e.widget.event_generate("<<SelectAll>>"))
 
 def show_context_menu(event):
     """Universal right-click menu for Entry and Text widgets."""

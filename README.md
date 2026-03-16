@@ -2,13 +2,15 @@
 
 A Python-based utility tool for common CSV and Excel data processing tasks.
 
-## ✨ New Release: v2.8.0
-**The "Auto-Update" Release!** We've added an intelligent updater that checks for new versions on startup, and fully automated GitHub Actions releases!
+## ✨ New Release: v2.8.1
+**The "Cross-Platform" Release!** Now fully compatible with both macOS and Windows with automated builds.
 
 ## 🚀 Downloads
-- **[Download AIO Tool v2.8.0 (Latest)](https://github.com/KostasChristopoulos/aio-v2-utility/releases/latest/download/AIO_CSV_Tool_v2.8.0_macOS.zip)**  
-- **[Download Splitter Pro Standalone (v1.4.0)](https://github.com/KostasChristopoulos/aio-v2-utility/releases/latest/download/Splitter_Pro_macOS.zip)**
-*(For Windows/Linux, run via Python instructions below)*
+The tool is now available as a standalone application for both **macOS** and **Windows**.
+
+- **[Latest Release Assets](https://github.com/KostasChristopoulos/aio-v2-utility/releases/latest)**
+- **macOS**: Download the `_macOS.zip` files, extract, and run the `.app`.
+- **Windows**: Download the `_Windows.zip` files, extract, and run the `.exe`.
 
 ---
 
@@ -22,10 +24,11 @@ A Python-based utility tool for common CSV and Excel data processing tasks.
 - **Activity Log**: Real-time logging with color-coded status, error/warning counters, and session export to .txt.
 
 ## Quality of Life
+- **Cross-Platform**: Tailored experience for both macOS (Command keys, Finder) and Windows (Control keys, Explorer).
 - **Interactive Tooltips**: Hover over the ⓘ icons for instant field explanations.
 - **Drag & Drop**: Drop files or folders directly into the app.
 - **Smart Naming**: Automatically suggests output filenames based on the input.
-- **Finder Integration**: Option to open the results folder directly after processing.
+- **File Explorer Integration**: Option to open the results folder directly after processing.
 - **Copy logs**: Double-click any log line to copy it to your clipboard.
 
 ## 🛠️ Installation & Usage
