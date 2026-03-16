@@ -1,0 +1,50 @@
+name: Build and Release Windows
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install customtkinter pandas Pillow tkinterdnd2 openpyxl pyinstaller
+        
+    - name: Build Windows Apps
+      shell: bash
+      run: |
+        CTK_PATH=$(python -c "import customtkinter; print(customtkinter.__path__[0])")
+        # Build AIO CSV Tool (Single File)
+        pyinstaller --noconfirm --onefile --windowed --name "AIO_CSV_Tool" --icon "assets/icon.ico" --add-data "assets;assets" --add-data "${CTK_PATH};customtkinter" --hidden-import "PIL.ImageTk" --hidden-import "PIL.Image" --collect-all "tkinterdnd2" main.py
+        
+        # Build Splitter Pro (Single File)
+        pyinstaller --noconfirm --onefile --windowed --name "Splitter_Pro" --icon "assets/icon.ico" --add-data "assets;assets" --add-data "${CTK_PATH};customtkinter" --hidden-import "PIL.ImageTk" --hidden-import "PIL.Image" --collect-all "tkinterdnd2" icsv_splitter.py
+        
+    - name: Zip Apps
+      shell: pwsh
+      run: |
+        $TAG_NAME = $env:GITHUB_REF -replace 'refs/tags/', ''
+        Compress-Archive -Path "dist/AIO_CSV_Tool.exe" -DestinationPath "dist/AIO_CSV_Tool_${TAG_NAME}_Windows.zip"
+        Compress-Archive -Path "dist/Splitter_Pro.exe" -DestinationPath "dist/Splitter_Pro_Windows.zip"
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          dist/AIO_CSV_Tool_*_Windows.zip
+          dist/Splitter_Pro_Windows.zip

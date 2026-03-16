@@ -65,7 +65,7 @@ def add_info_icon(parent, text):
 # ==========================================
 # 1. CORE APP SETUP & NAVIGATION
 # ==========================================
-VERSION = "v2.8.1"
+VERSION = "v2.8.2"
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.json")
 ENABLE_ACTIVITY_LOG = True 
 
